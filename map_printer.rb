@@ -11,6 +11,8 @@ class MapPrinter
     end
 
     def draw(g)
+      clean
+      puts "--map"
 
       g.players.each do |p|
           r,c = get_cell(p.pos)
@@ -19,26 +21,29 @@ class MapPrinter
 
       c=60
       r=1
-      cmap = []
-      g.cells.each do |cl|
-          if cl.land?
-            #r,c = get_cell(cl.id)
+      cells = []
+      g.cells.select{|cc| cc.land?}.group_by(&:group).sort_by{|k,v| k}.each do |k,v|
+          group_row=""
+          v.each do |cl|
             pl = cl.owner ? draw_player(cl.owner) : " "
-            cmap << "#{pl} #{cl.name.strip.ljust(12, ' ')} rent: #{cl.rent}"
+            group_row += "#{pl}#{cl.name.strip.ljust(2, ' ')}_#{cl.rent} "
           end
+          cells << group_row
+          cells << "".ljust(30, '-')
       end
 
-      i=0
-      @map.each do |l|
-          if i<cmap.size
-            puts l.gsub("\n","").ljust(60, ' ') + cmap[i]
-            i+=1
+
+      last_row = @map.size
+      for i in 0..last_row
+          l = @map[i] if i<last_row
+          if i<cells.size
+            puts l.gsub("\n","").ljust(60, ' ') + cells[i]
           else
             puts l
           end
       end
 
-      clean
+
     end
 
     def clean

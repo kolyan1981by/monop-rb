@@ -30,11 +30,12 @@ loop do
 
     text =  GameUI.show_game_state(g)
 
+
     p "#{g.curr.name} pos=#{g.curr.pos} #{text}"
     s = gets
     break if s.strip =="q"
 
     GameUI.process_command(g, s.strip)
-
+    GameUI.show_last_round(g)
 
 end

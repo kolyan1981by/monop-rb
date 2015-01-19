@@ -9,7 +9,7 @@ puts "---test trade func"
 
 g = Game.new(File.dirname(__FILE__))
 g.auto_update = false
-g.log_console = true
+g.log_to_console = true
 g.add_players(2,3000)
 g.start
 

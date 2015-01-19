@@ -81,6 +81,12 @@ module  GameUI
       PlayerManager.unmortgage_cells(g, g.curr, cells)
     end
 
+    def self.show_last_round(g)
+      r = g.round
+      logs = g.logs.select{ |l| l.start_with?("[#{r}]") or l.start_with?("[#{r-1}]") }
+      logs.each { |e| p e }
+    end
+
 
     def self.info(g)
       res=[]
