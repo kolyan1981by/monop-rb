@@ -79,33 +79,6 @@ class Map
 
     end
 
-    def init_chest_cards
-      community = []
-      chance = []
 
-      community<< ChestCard.new(:random_group => -1,  :text=>"need pay bank",:money=>100)
-
-      community<< ChestCard.new(:random_group =>1, :text=>"get money $100",:money=>100)
-      community<< ChestCard.new(:random_group =>1, :text=>"get money $1.5K",:money=>1500)
-      community<< ChestCard.new(:random_group =>1, :text=>"get money $2K",:money=>2000)
-
-      community<< ChestCard.new(:random_group =>2, :text=>"go to trans", :pos=>5)
-      community<< ChestCard.new(:random_group =>5, :text=>"Get out of jail free")
-
-      community<< ChestCard.new(:random_group =>15, :text=>"You are assessed for street repairs – $100 per house, $400 per hotel",:money=>0)
-
-      chance<< ChestCard.new(:random_group =>2, :text=>"Advance to Go", :pos=>0)
-      chance<< ChestCard.new(:random_group =>2, :text=>"go to Police", :pos=>10)
-      chance<< ChestCard.new(:random_group =>2, :text=>"go to", :pos=>11)
-      chance<< ChestCard.new(:random_group =>2, :text=>"go to",:pos=>24)
-      chance<< ChestCard.new(:random_group =>2, :text=>"go to",:pos=>39)
-
-      chance<< ChestCard.new(:random_group =>3, :text=>"go to 3 cell back")
-      chance<< ChestCard.new(:random_group =>4, :text=>"Pay each player $500", :money=>500)
-
-      @g.community_chest =community
-      @g.chance_chest =chance
-
-    end
 
 end

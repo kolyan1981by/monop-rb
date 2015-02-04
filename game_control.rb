@@ -28,10 +28,24 @@ module  GameUI
           g.state
       end
     end
-
+    def self.show_game_state_ru(g)
+      case g.state
+      when :BeginStep;     "начало хода"
+      when :CanBuy;        "вы можете купить #{g.curr_cell.id} или выставить на аукцион, жми b/a:" if g.curr.hum?
+      when :Auction;       "увеличить ставку? [y n]" #if g.curr_auction.curr_pl.hum?
+      when :Trade;         "игрок #{g.curr_trade.from.id} хочет обменяться, дает #{g.curr_trade.give_cells} хочет #{g.curr_trade.get_cells}, жми y/n"
+      when :CantPay;       "заложите или что-нибудь продайте, чтобы заплатить"
+      when :NeedPay;       "нужно заплатить, жми enter" if g.curr.hum?
+      when :RandomCell;    "#{g.last_rcard.text}, жми enter" if g.curr.hum?
+      when :MoveToCell;    "предлагают проехаться на клетку" if g.curr.hum?
+      when :EndStep;
+      else
+          g.state
+      end
+    end
     def self.process_command(g, cmd)
       #puts "#{g.state} process_command: #{cmd}"
-      GameManager.update_game(g) if g.curr.isbot
+      #GameManager.update_game(g) if g.curr.isbot
 
       case g.state
       when :BeginStep;
@@ -81,12 +95,6 @@ module  GameUI
       PlayerManager.unmortgage_cells(g, g.curr, cells)
     end
 
-    def self.show_last_round(g)
-      r = g.round
-      logs = g.logs.select{ |l| l.start_with?("[#{r}]") or l.start_with?("[#{r-1}]") }
-      logs.each { |e| p e }
-    end
-
 
     def self.info(g)
       res=[]
@@ -105,5 +113,12 @@ module  GameUI
       #g.log "---------------------------------"
 
       res
+    end
+
+    def self.show_last_round(g)
+      r = g.round
+      #logs = g.logs.select{ |l| l.start_with?("[#{r}]") or l.start_with?("[#{r-1}]") }
+      logs = g.logs.select{ |l| l.start_with?("[#{r}]") }
+      logs.each { |e| p e }
     end
 end

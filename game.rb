@@ -16,16 +16,16 @@ class Game
     attr_accessor :curr_auction, :bot_arules
     attr_accessor :debug, :manual_mode, :logs, :log_to_console, :log_game_rounds, :update_interval,:auto_update, :round_actions
 
-    def initialize(root_path="")
+    def initialize(root_path="", lang="ru")
       @id = SecureRandom.hex(10)
 
       @players = []
-      @cells = FileUtil.init_cells_from_file(root_path+"/data/lands.txt")
-      @bot_trules = FileUtil.init_trades_from_file(root_path+"/data/trade_rules.txt")
-      @bot_arules = FileUtil.init_aucrules_from_file(root_path+"/data/auc_rules.txt")
+      @cells = FileUtil.init_cells_from_file(root_path + "/data/lands.txt")
+      @bot_trules = FileUtil.init_trades_from_file(root_path + "/data/trade_rules.txt")
+      @bot_arules = FileUtil.init_aucrules_from_file(root_path + "/data/auc_rules.txt")
+      FileUtil.init_chest_cards_from_file(self, root_path + "/data/chest_cards_#{lang}.txt")
 
       @map = Map.new(self)
-      @map.init_chest_cards
       @player = PlayerManager.new(self)
 
       @debug = false
@@ -37,6 +37,7 @@ class Game
       @update_interval = 1
       @auto_update = true
       @round_actions = []
+      @selected = 0
 
     end
 
@@ -50,7 +51,6 @@ class Game
     def start
       @pcount = players.count
       to_begin
-      @selected =0
       @round = 1
 
       GameManager.every_n_seconds(@update_interval, self.finished?) do

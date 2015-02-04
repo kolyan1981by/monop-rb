@@ -19,8 +19,9 @@ class PlayerStep
 
       g.last_roll = [r1,r2]
 
+      prev_pos = g.curr.pos
       g.player.step
-      g.logp "roll #{r1}:#{r2} pos #{g.curr.pos}"
+      g.logp "roll #{r1}:#{r2} (#{prev_pos}->#{g.curr.pos})"
 
       process_position(g)
     end

@@ -35,7 +35,53 @@ class FileUtil
 
       res.sort_by(&:id)
     end
+    def self.init_chest_cards_from_file(g, file_path)
+      res = []
 
+      File.open(file_path, "r").drop(1).each do |line|
+          next if /\S/ !~ line
+
+          v = line.split("\t").select{ |e| !e.strip.empty?  }
+          cc =ChestCard.new
+          cc.random_group =v[0].to_i
+          cc.type =v[1].to_i
+          cc.text =v[2]
+          cc.money =v[3].to_i if v.size >=4
+          cc.pos =v[4].to_i if v.size >=5
+          res<< cc
+      end
+      g.community_chest =res.select{ |e| e.type ==1  }
+      g.chance_chest =res.select{ |e| e.type ==2  }
+    end
+
+    def self.init_chest_cards(g)
+      community = []
+      chance = []
+
+      community<< ChestCard.new(:random_group => -1,  :text=>"need pay bank",:money=>100)
+
+      community<< ChestCard.new(:random_group =>1, :text=>"get money $100",:money=>100)
+      community<< ChestCard.new(:random_group =>1, :text=>"get money $1.5K",:money=>1500)
+      community<< ChestCard.new(:random_group =>1, :text=>"get money $2K",:money=>2000)
+
+      community<< ChestCard.new(:random_group =>2, :text=>"go to trans", :pos=>5)
+      community<< ChestCard.new(:random_group =>5, :text=>"Get out of jail free")
+
+      community<< ChestCard.new(:random_group =>15, :text=>"You are assessed for street repairs – $100 per house, $400 per hotel",:money=>0)
+
+      chance<< ChestCard.new(:random_group =>2, :text=>"Advance to Go", :pos=>0)
+      chance<< ChestCard.new(:random_group =>2, :text=>"go to Police", :pos=>10)
+      chance<< ChestCard.new(:random_group =>2, :text=>"go to", :pos=>11)
+      chance<< ChestCard.new(:random_group =>2, :text=>"go to",:pos=>24)
+      chance<< ChestCard.new(:random_group =>2, :text=>"go to",:pos=>39)
+
+      chance<< ChestCard.new(:random_group =>3, :text=>"go to 3 cell back")
+      chance<< ChestCard.new(:random_group =>4, :text=>"Pay each player $500", :money=>500)
+
+      g.community_chest =community
+      g.chance_chest =chance
+
+    end
     def self.init_trades_from_file(file)
       res = []
       i=0
