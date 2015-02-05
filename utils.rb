@@ -16,7 +16,10 @@ class GameUtil
 end
 
 class FileUtil
+    def self.init_game_messages(g)
+      #g.gtext
 
+    end
     def self.init_cells_from_file(file)
       res = []
       File.open(file, "r").drop(1).each do |line|

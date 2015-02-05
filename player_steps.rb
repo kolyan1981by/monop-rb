@@ -72,7 +72,7 @@ class PlayerStep
       case c.random_group
       when 1
           p.money += c.money
-          g.log "get money #{c.money}"
+          g.log c.text
           g.to_random_cell
 
       when 2,3
@@ -80,7 +80,7 @@ class PlayerStep
 
       when 4
           g.pay_amount = c.money*(g.players.length - 1)
-          g.log c.text + "# amount=#{g.pay_amount}"
+          g.log c.text
           g.players.each{|x| x.money+=c.money if x.id != p.id }
           g.to_payam()
 
@@ -115,17 +115,17 @@ class PlayerStep
       if c.random_group ==2 and c.pos ==1
           p.pos =10
           p.police =1
-          g.log "go to jail"
+          g.log c.text
           g.finish_step
       else
           if c.random_group ==3
-            g.log "go 3 steps back"
+            g.log c.text
             p.pos-=3 if p.pos>3
           else
-            g.log "go to cell #{c.pos}"
+            g.log "#{c.text} #{c.pos}"
             if p.pos > c.pos
                 p.money+=2000
-                g.log "you passed the start"
+                g.logp g.lang_en? ? "you passed the start" : "вы прошли старт"
             end
             p.pos = c.pos
           end

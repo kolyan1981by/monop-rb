@@ -48,7 +48,7 @@ class PlayerManager
           g.pay_amount = 0
           return true
       else
-          g.log "not enough money"
+          g.logp g.lang_en? ? "not enough money" : "не хватает денег"
           g.to_cant_pay
       end
 

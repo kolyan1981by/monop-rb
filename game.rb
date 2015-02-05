@@ -14,16 +14,19 @@ class Game
     attr_accessor :last_rcard, :community_chest, :chance_chest
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
     attr_accessor :curr_auction, :bot_arules
-    attr_accessor :debug, :manual_mode, :logs, :log_to_console, :log_game_rounds, :update_interval,:auto_update, :round_actions
+    attr_accessor :debug, :manual_mode, :logs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
+    attr_accessor :lang, :gtext
 
     def initialize(root_path="", lang="ru")
       @id = SecureRandom.hex(10)
+      @lang = lang
 
       @players = []
       @cells = FileUtil.init_cells_from_file(root_path + "/data/lands.txt")
       @bot_trules = FileUtil.init_trades_from_file(root_path + "/data/trade_rules.txt")
       @bot_arules = FileUtil.init_aucrules_from_file(root_path + "/data/auc_rules.txt")
       FileUtil.init_chest_cards_from_file(self, root_path + "/data/chest_cards_#{lang}.txt")
+      FileUtil.init_game_messages(self)
 
       @map = Map.new(self)
       @player = PlayerManager.new(self)
@@ -37,7 +40,6 @@ class Game
       @update_interval = 1
       @auto_update = true
       @round_actions = []
-      @selected = 0
 
     end
 
@@ -49,6 +51,7 @@ class Game
     end
 
     def start
+      @selected = 0
       @pcount = players.count
       to_begin
       @round = 1
@@ -151,7 +154,7 @@ def finished? ; @state == :FinishGame end
 
 def to_begin; @state = :BeginStep end
 
-
+def lang_en? ; @lang == "en" end
 
 def to_random_cell
     if curr.isbot
@@ -199,8 +202,10 @@ def log(text)
 end
 
 def logp(text)
-    puts "[#{curr.name}, #{curr.money}] #{text}" if @log_to_console
-    logs << "[#{@round}] [#{curr.name}, #{curr.money}] #{text}"
+    ftext = "[#{curr.name}, #{curr.money}] #{text}"
+    puts ftext if @log_to_console
+
+    logs << "[#{@round}] #{ftext}"
 end
 
 def logd(text)

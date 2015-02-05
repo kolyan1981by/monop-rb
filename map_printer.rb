@@ -47,7 +47,7 @@ class MapPrinter
     end
 
     def clean
-      @map = File.readlines("map.txt")
+      @map = File.readlines("data/map.txt")
     end
 
     def get_cell(p)
