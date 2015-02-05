@@ -4,4 +4,4 @@ monop3
 monopoly, ruby version
 
 
-to test simply run 'ruby t1.rb' and find log in "/tmp/monop.log"
+to play game in console simply run 'ruby run.rb' 

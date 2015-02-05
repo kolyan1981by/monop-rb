@@ -19,11 +19,33 @@ class FileUtil
     def self.init_game_messages(g)
       g.mtext =
       Hash[
-          "passed_start" =>["you passed the start", "вы прошли старт"],
+          "_passed_start" =>["you passed the start, take $2000", "вы прошли старт и получили взятку $2000"],
+          "_stayed_on_start" =>["you stayed on start, take $2000", "вы попали на старт и получили откат $2000"],
           "not_enough_money" => ["not enough money" , "не хватает денег"],
+          "auc_finished" => ["auction finished" , "аукцион закончился"],
+          "random_finished" => ["random finished" , ""],
+          "_cell_mortgaged" => ["cell_mortgaged" , "земля заложена"],
+          "_mycell" => ["mycell" , "на своей клетке"],
+          "_cell_nothing" => ["simple cell" , "пустая клетка"],
+          "round_finished" => ["round finished" , "раунд закончился"],
+          "player_left_game" => ["player %s left game" , "игрок %s покидает игру"],
+          "player_left_auction" => ["player %s left auction" , "игрок %s покидает аукцион"],
+          "game_finished" => ["game finished" , "игра закончена"],
+          "player_bid" => ["player %s bid %d" , "игрок %s делает ставку %d"],
+          "_paid" => ["paid" , "заплатил"],
+          "_bought" => ["bought" , "купил"],
+          "_build" => ["build houses" , "построил дома"],
+          "_sold_houses" => ["sold houses" , "продал дома"],
+          "_mortgage" => ["sell houses" , "продал дома"],
+          "_unmortgage" => ["sell houses" , "продал дома"],
+          "_trade_completed" => ["trade completed between %s and %s, give %s get %s",
+                              "обмен состоялся между %s и %s, дает %s получает %s"],
+          "_go_jail_after_tripple" => ["_go_jail_after_tripple" , "пора в камеру дружок, слишком много махинаций"],
+          "_go_jail_after_30" => ["_go_jail_after_30" , "полиция устроила облаву, вы попались с наркотой, пора в тюряшку"],
       ]
 
     end
+
     def self.init_cells_from_file(file)
       res = []
       File.open(file, "r").drop(1).each do |line|

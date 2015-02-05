@@ -14,7 +14,7 @@ class Game
     attr_accessor :last_rcard, :community_chest, :chance_chest
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
     attr_accessor :curr_auction, :bot_arules
-    attr_accessor :debug, :manual_mode, :logs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
+    attr_accessor :debug, :manual_mode, :logs, :xlogs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
     attr_accessor :lang, :mtext
 
     def initialize(root_path="", lang="ru")
@@ -35,6 +35,7 @@ class Game
       @rejected_trades = []
       @completed_trades =[]
       @logs =[]
+      @xlogs =[]
       @log_to_console = false
       @log_game_rounds = false
       @update_interval = 1
@@ -118,8 +119,7 @@ class Game
 
       log_game_round if @log_game_rounds
 
-      log "round [#{@round}] finished"
-      log "---------------------"
+      log "round_finished"
 
       @round+=1
 
@@ -131,6 +131,7 @@ class Game
 
     def fix_action(act)
       log act
+      logx act
     end
 
     def log_game_round
@@ -157,7 +158,9 @@ def to_begin; @state = :BeginStep end
 def lang_en? ; @lang == "en" end
 
 def get_text(key)
-    lang_en? ? mtext[0] : mtext[1]
+
+    ind = lang_en? ? 0 : 1
+    mtext.has_key?(key) ? mtext[key][ind] : key
 end
 
 def to_random_cell
@@ -200,15 +203,25 @@ def to_can_buy(finish = true)
     if curr.isbot && !@auto_update ;  PlayerManager.buy(self) end
 end
 
+
+def transl_text(text)
+    arr = text.split(' ').map { |e| get_text(e) }.join(' ')
+end
+
 def log(text)
-    puts text if @log_to_console
-    logs<<"[#{@round}] #{text}"
+    arr =text.split(' ')
+    arr[0] = get_text(arr[0])
+    ttext = arr.join(' ')
+    logs << "[#{@round}] #{ttext}"
+end
+
+def logx(text)
+    xlogs<<"[#{@round}] #{text}"
 end
 
 def logp(text)
-    ftext = "[#{curr.name}, #{curr.money}] #{text}"
-    puts ftext if @log_to_console
-
+    ttext = transl_text(text)
+    ftext = "[#{curr.name}, #{curr.money}] #{ttext}"
     logs << "[#{@round}] #{ftext}"
 end
 

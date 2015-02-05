@@ -30,7 +30,7 @@ class BBHouses
             gr[1].sort_by(&:houses_count).each do |cell|
 
                 if builded_sum+cost > sum
-                  g.fix_action("build#{text}") if text != ""
+                  g.fix_action("_build #{text}") if text != ""
                   return
                 end
 
@@ -38,14 +38,14 @@ class BBHouses
                   cell.houses_count+=1
                   p.money -= cell.house_cost
                   builded_sum += cost
-                  text = text+ "_" + cell.id.to_s
+                  text = "#{text}_#{cell.id}"
                 end
             end
 
           end
       end
 
-      g.fix_action("build#{text}") if text != ""
+      g.fix_action("_build #{text}") if text != ""
     end
 
     def self.sell_houses(g, p, amount)
@@ -63,13 +63,13 @@ class BBHouses
             if cc.houses_count > 0
                 cc.houses_count-=1
                 p.money += cc.house_cost_when_sell
-                text = text + "_" + cc.id.to_s
+                text = "#{text}_#{cell.id}"
             end
           end
 
       end
 
-      g.fix_action("sold_houses#{text}") if text != ""
+      g.fix_action("_sold_houses #{text}") if text != ""
 
     end
 end

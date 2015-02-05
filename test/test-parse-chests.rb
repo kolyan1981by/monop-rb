@@ -4,11 +4,11 @@
 
 
 gg = Hash[
-    "passed_start" : ["you passed the start", "вы прошли старт"],
+    "passed_start" => ["you passed the start", "вы прошли старт"],
     "not_enough_money"=> ["not enough money" , "не хватает денег"],
 ]
 
-p gg["passed_start"][0]
+p gg["passed_start"][1]
 
 #g = Game.new(File.dirname(__FILE__))
 #p g.community_chest

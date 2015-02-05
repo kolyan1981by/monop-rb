@@ -39,9 +39,9 @@ module AuctionManager
       if needbid
           g.curr_auction.next_bid
           g.curr_auction.last_bidded_player = pl.id
-          g.log "player #{pl.name} bid #{g.curr_auction.curr_bid}"
+          g.log g.get_text("player_bid") % [pl.name , g.curr_auction.curr_bid]
       else
-          g.log "player #{pl.name} is out"
+          g.log g.get_text("player_left_auction") % pl.name
           g.curr_auction.auc_pls.delete(pid)
       end
       next_auction_player(g)
@@ -66,9 +66,9 @@ module AuctionManager
       end
 
       if auc.finished
-          result = count==0? "no winners" : "winner_#{auc.auc_pls.first}"
+          result = count==0? "no_winners" : "winner_#{auc.auc_pls.first}"
           set_auc_winner(g) if count ==1
-          g.finish_step("auc_finished_[#{result}]")
+          g.finish_step("auc_finished [#{result}]")
       end
 
     end

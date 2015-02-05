@@ -45,7 +45,7 @@ class BotBrainCells
 
       end
 
-      g.fix_action("mortgage#{text}") if text != ""
+      g.fix_action("_mortgage #{text}") if text != ""
 
       return p.money >= amount
 
@@ -77,7 +77,7 @@ class BotBrainCells
 
       end
 
-      g.fix_action("unmortgage#{text}") if text != ""
+      g.fix_action("_unmortgage #{text}") if text != ""
 
     end
 end

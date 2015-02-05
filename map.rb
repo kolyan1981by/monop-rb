@@ -69,16 +69,4 @@ class Map
       end
     end
 
-    def move_to_cell
-      if curr.isbot
-          PlayerStep.move_to_cell(@g)
-          @g.finish_step
-      else
-          @g.state = :MoveToCell
-      end
-
-    end
-
-
-
 end

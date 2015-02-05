@@ -6,27 +6,7 @@ class PlayerManager
       @g = g
     end
 
-    def step
-      r0,r1 = g.last_roll[0],g.last_roll[1]
-      pl = g.curr
-      pl.pos += r0+r1
-      pl.player_steps << r0*10+r1
 
-      if check_on_tripple then
-          pl.pos =10
-          pl.police=1
-          @player_steps.clear
-          return false
-      end
-      if pl.pos>=40 then
-          pl.money +=2000
-          pl.pos-=40
-      end
-    end
-
-    def check_on_tripple
-      false
-    end
 
     def self.pay(g, finish = true)
       p = g.curr
@@ -40,7 +20,7 @@ class PlayerManager
             g.pay_to_user = nil
           end
           if finish
-            g.finish_step("paid_"+ amount.to_s)
+            g.finish_step("_paid " + amount.to_s)
           else
             g.state = :BeginStep
           end
@@ -75,7 +55,7 @@ class PlayerManager
 
             if needbuy
                 g.map.set_owner(p,cell)
-                g.finish_step("bought_#{cell.id}_f#{ff}")
+                g.finish_step("_bought #{cell.name} f=#{ff}")
             else
                 g.to_auction
             end
@@ -86,7 +66,7 @@ class PlayerManager
                 return
             else
                 g.map.set_owner(p,cell)
-                g.finish_step("bought_#{cell.id}")
+                g.finish_step("_bought #{cell.name}")
             end
           end
 

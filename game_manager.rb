@@ -63,13 +63,13 @@ module GameManager
       if g.players.count >= 2
           g.players.delete(p)
           g.map.cells_by_user(pid).each{|c| c.owner = nil;c.houses_count=0}
-          g.log "player #{p.name} left game"
+          g.log g.get_text("player_left_game") % p.name
       end
 
       if g.players.count == 1
           g.winner = g.players.first
           g.state = :FinishGame
-          g.log 'game finished'
+          g.log 'game_finished'
       end
     end
 

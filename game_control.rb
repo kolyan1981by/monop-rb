@@ -108,9 +108,9 @@ module  GameUI
 
           cells_info = "cells #{active} mortg #{mortg} with houses #{housed}"
 
-          res<< "#{p.name},#{p.money} #{cells_info}"
+          #res<< "#{p.name},#{p.money} #{cells_info}"
+          res<< "#{p.name} #{p.money}"
       end
-      #g.log "---------------------------------"
 
       res
     end

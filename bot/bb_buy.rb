@@ -19,7 +19,6 @@ class BotActionsWhenBuy
             mf.nil? ? -1 : mf[1]
           }.min
 
-          g.logd("factor[need_build_houses]_"+ff.to_s)
           return ff
       end
 
@@ -57,8 +56,6 @@ class BotActionsWhenBuy
       end
 
       if (myCount >0) then isNeedBuy = factors_my(cg,myCount) ; ftext="factors[mycount]_" end
-
-      g.logd("#{ftext}_#{isNeedBuy}")
 
       return isNeedBuy
     end

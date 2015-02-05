@@ -15,7 +15,6 @@ module TradeManager
     end
 
     def self.complete_trade(g)
-      g.log  "make trade"
       g.completed_trades << g.curr_trade
       trade = g.curr_trade
       trade.give_cells.each{|c| g.cells[c].owner = trade.to.id }
@@ -23,7 +22,9 @@ module TradeManager
       trade.from.money += trade.get_money-trade.give_money
       trade.to.money += trade.give_money-trade.get_money
       g.map.update_map
-      g.fix_action("trade_completed_give[#{trade.give_cells.join('_')}]_get[#{trade.get_cells.join('_')}]")
+
+      log_trade(g, trade)
+
       g.to_begin
     end
 
@@ -33,11 +34,16 @@ module TradeManager
 
       if is_good_trade(currtrade, trs)
           complete_trade(g)
-          g.fix_action("trade_completed")
+          log_trade(g, trade)
           return true
       end
       g.to_begin
       return false
+    end
+
+    def self.log_trade(g, trade)
+      text = g.get_text("_trade_completed") % [trade.from.name, trade.to.name, trade.give_cells.join(' '), trade.get_cells.join(' ') ]
+      g.fix_action(text)
     end
 
     def self.is_good_trade(tr, trades)
