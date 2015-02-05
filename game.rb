@@ -15,7 +15,7 @@ class Game
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
     attr_accessor :curr_auction, :bot_arules
     attr_accessor :debug, :manual_mode, :logs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
-    attr_accessor :lang, :gtext
+    attr_accessor :lang, :mtext
 
     def initialize(root_path="", lang="ru")
       @id = SecureRandom.hex(10)
@@ -155,6 +155,10 @@ def finished? ; @state == :FinishGame end
 def to_begin; @state = :BeginStep end
 
 def lang_en? ; @lang == "en" end
+
+def get_text(key)
+    lang_en? ? mtext[0] : mtext[1]
+end
 
 def to_random_cell
     if curr.isbot

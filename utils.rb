@@ -17,7 +17,11 @@ end
 
 class FileUtil
     def self.init_game_messages(g)
-      #g.gtext
+      g.mtext =
+      Hash[
+          "passed_start" =>["you passed the start", "вы прошли старт"],
+          "not_enough_money" => ["not enough money" , "не хватает денег"],
+      ]
 
     end
     def self.init_cells_from_file(file)

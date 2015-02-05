@@ -125,7 +125,7 @@ class PlayerStep
             g.log "#{c.text} #{c.pos}"
             if p.pos > c.pos
                 p.money+=2000
-                g.logp g.lang_en? ? "you passed the start" : "вы прошли старт"
+                g.logp g.get_text("passed_start")
             end
             p.pos = c.pos
           end
