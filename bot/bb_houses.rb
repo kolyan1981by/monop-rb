@@ -21,7 +21,7 @@ class BBHouses
       text=""
       builded_sum = 0
 
-      groupCells.sort_by{|k,v| v.max_by(&:houses_count).houses_count}.reverse.each do |gr|
+      groupCells.sort_by{ |k,v| v.max_by(&:houses_count).houses_count }.reverse.each do |gr|
 
           cost = gr[1].first.house_cost
 

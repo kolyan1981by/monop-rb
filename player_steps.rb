@@ -21,9 +21,9 @@ class PlayerStep
       g.last_roll = [r1,r2]
 
       prev_pos = g.curr.pos
-      curr_pos = prev_pos+r1+r2 %40
+      curr_pos = prev_pos+r1+r2
 
-      g.logp "roll #{r1}:#{r2} (#{prev_pos}->#{curr_pos})"
+      g.logp "roll #{r1}:#{r2} (#{prev_pos}->#{curr_pos%40})"
 
       finished = step(g) #move to new pos
 
@@ -76,7 +76,6 @@ class PlayerStep
           g.to_pay(cell.rent)
 
       elsif cell.type == 4 #random
-          g.map.take_random_card()
           process_random(g,p)
 
       elsif p.pos ==30
@@ -109,8 +108,10 @@ class PlayerStep
     end
 
     def self.process_random(g,p)
+
+      g.map.take_random_card()
       c = g.last_rcard
-      g.log "r#{c.random_group} #{c.text}"
+      g.log "#{c.text}"
 
       case c.random_group
       when 1
@@ -119,6 +120,7 @@ class PlayerStep
 
       when 2,3
           g.move_to_cell
+          #PlayerStep.move_after_random(g)
 
       when 4
           g.pay_amount = c.money*(g.players.length - 1)
@@ -137,14 +139,7 @@ class PlayerStep
       else
           g.finish_step("finish_unknown_random")
       end
-    end
-
-    def self.move_to_cell(g)
-      c = g.last_rcard
-      p = g.curr
-      if c.random_group ==2 or c.random_group ==3
-          move_after_random(g)
-      end
+      #g.last_rcard = nil
     end
 
     def self.move_after_random(g)
@@ -154,19 +149,20 @@ class PlayerStep
       if c.random_group ==2 and c.pos ==10
           p.pos =10
           p.police =1
-          g.finish_step
+          g.logx "catch_by_police"
+          g.finish_step("")
       elsif c.random_group ==3
           p.pos-=3 if p.pos>3
+          process_position(g)
       else
           if p.pos > c.pos
-            p.pos = c.pos
-
             p.money+=2000
             g.log "_passed_start" if p.pos !=0
             g.log "_stayed_on_start" if p.pos ==0
           end
-
+          p.pos = c.pos
+          process_position(g)
       end
-      process_position(g)
+
     end
 end

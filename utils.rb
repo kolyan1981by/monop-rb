@@ -23,7 +23,7 @@ class FileUtil
           "_stayed_on_start" =>["you stayed on start, take $2000", "вы попали на старт и получили откат $2000"],
           "not_enough_money" => ["not enough money" , "не хватает денег"],
           "auc_finished" => ["auction finished" , "аукцион закончился"],
-          "random_finished" => ["random finished" , ""],
+          "_random_finished" => ["random finished" , ""],
           "_cell_mortgaged" => ["cell_mortgaged" , "земля заложена"],
           "_mycell" => ["mycell" , "на своей клетке"],
           "_cell_nothing" => ["simple cell" , "пустая клетка"],
@@ -36,12 +36,12 @@ class FileUtil
           "_bought" => ["bought" , "купил"],
           "_build" => ["build houses" , "построил дома"],
           "_sold_houses" => ["sold houses" , "продал дома"],
-          "_mortgage" => ["sell houses" , "продал дома"],
-          "_unmortgage" => ["sell houses" , "продал дома"],
+          "_mortgage" => ["mortgage" , "заложил участок"],
+          "_unmortgage" => ["unmortgage" , "выкупил участок"],
           "_trade_completed" => ["trade completed between %s and %s, give %s get %s",
                               "обмен состоялся между %s и %s, дает %s получает %s"],
           "_go_jail_after_tripple" => ["_go_jail_after_tripple" , "пора в камеру дружок, слишком много махинаций"],
-          "_go_jail_after_30" => ["_go_jail_after_30" , "полиция устроила облаву, вы попались с наркотой, пора в тюряшку"],
+          "_go_jail_after_30" => ["_go_jail_after_30" , "полиция устроила облаву, вы попались с наркотой и вас посадили на три хода"],
       ]
 
     end
@@ -57,7 +57,8 @@ class FileUtil
           c.cost = v[2].to_i
           c.type = v[3].to_i
           c.group = v[4].to_i
-          c.arenda_info = v[5].strip
+          c.rent_info = v[5].strip
+          c.info = v[6].strip if v.size>5
           res << c
 
       end

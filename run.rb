@@ -41,7 +41,19 @@ def run_console_game
 end
 
 #run_console_game
-#steps=[12,22,33]; p steps[-3..-1].all? {|ss| [11,22,33,44,55,66].include? ss}
+def test
+    puts "---run console game.rb"
 
-#g = Game.new(File.dirname(__FILE__))
-#p g.chance_chest
+    g = Game.new(File.dirname(__FILE__))
+    g.players << Player.new(0, "kilk", 0 , 15000)
+    g.players << Player.new(1, "vovk", 0, 15000)
+
+    g.debug = false
+    g.auto_update = false
+    g.start
+
+    PlayerStep.make_step_roll(g,2,5)
+    g.logs.map { |line| p line  }
+    #g.cells.map { |e| p e.info  }
+
+end

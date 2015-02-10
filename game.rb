@@ -16,13 +16,14 @@ class Game
     attr_accessor :curr_auction, :bot_arules
     attr_accessor :debug, :manual_mode, :logs, :xlogs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
     attr_accessor :lang, :mtext
+    attr_accessor :ui_show_ok_when_endround
 
     def initialize(root_path="", lang="ru")
       @id = SecureRandom.hex(10)
       @lang = lang
 
       @players = []
-      @cells = FileUtil.init_cells_from_file(root_path + "/data/lands.txt")
+      @cells = FileUtil.init_cells_from_file(root_path + "/data/lands_#{lang}.txt")
       @bot_trules = FileUtil.init_trades_from_file(root_path + "/data/trade_rules.txt")
       @bot_arules = FileUtil.init_aucrules_from_file(root_path + "/data/auc_rules.txt")
       FileUtil.init_chest_cards_from_file(self, root_path + "/data/chest_cards_#{lang}.txt")
@@ -41,6 +42,7 @@ class Game
       @update_interval = 1
       @auto_update = true
       @round_actions = []
+      @ui_show_ok_when_endround = true
 
     end
 
@@ -80,7 +82,49 @@ class Game
           @pcount ==0 ? "finish": @players[0]
 
     end
+    def finish_step(act)
+      fix_action(act) if !act.empty?
 
+      #return if state == :EndStep
+
+      @state = :EndStep
+
+      finish_round() if !@ui_show_ok_when_endround && !@auto_update
+    end
+
+    def finish_round()
+
+      return if state != :EndStep
+
+      GameManager.bot_actions_when_finish_step(self) if curr.isbot && !@auto_update
+
+      log_game_round if @log_game_rounds
+
+      log "round_finished"
+
+      @round+=1
+
+      @selected = @selected < @pcount ?  (@selected+1) % @pcount : 0
+
+      to_begin
+
+      PlayerStep.make_step(self) if curr.isbot && !@auto_update
+
+    end
+
+    def fix_action(act)
+      log act
+      logx act
+    end
+
+    def log_game_round
+      @round_actions<<
+      {
+          round: @round,
+          players_pos: @players.map{|p| p.pos}.to_a,
+          cells:  @cells.map { |cc| cc.dup}
+      }
+    end
     def find_player(pid) @players.detect{|p| p.id == pid} end
 
     def find_player_by(user_name) @players.detect{|p| p.name == user_name} end
@@ -102,132 +146,95 @@ class Game
 
     def curr_cell; cells[curr.pos] end
 
-    def finish_step(act)
-      fix_action(act) if !act.empty?
-
-      #return if state == :EndStep
-
-      @state = :EndStep
-
-      finish_round() if !@auto_update
+    def set_state(state)
+      @state = state if !finished?
     end
 
-    def finish_round()
+    def begin? ; @state == :BeginStep end
 
-      return if state != :EndStep
-      GameManager.bot_actions_when_finish_step(self) if curr.isbot && !@auto_update
+    def in_trade? ; @state == :Trade end
 
-      log_game_round if @log_game_rounds
+    def in_auction? ; @state == :Auction end
 
-      log "round_finished"
+    def state_endround? ; @state == :EndStep end
 
-      @round+=1
+    def finished? ; @state == :FinishGame end
 
-      @selected = @selected < @pcount ?  (@selected+1) % @pcount : 0
+    def to_begin; @state = :BeginStep end
 
-      to_begin
+    def lang_en? ; @lang == "en" end
+
+    def get_text(key)
+
+      ind = lang_en? ? 0 : 1
+      mtext.has_key?(key) ? mtext[key][ind] : key
+    end
+
+    def to_random_cell
+      if curr.isbot
+          finish_step("_random_finished")
+      else
+          @state = :RandomCell
+      end
+    end
+
+    def move_to_cell
+      if curr.isbot
+          PlayerStep.move_after_random(self)
+      else
+          @state = :MoveToCell
+      end
 
     end
 
-    def fix_action(act)
-      log act
-      logx act
+    def to_pay(amount, finish = true)
+      @pay_amount = amount;
+      to_payam()
     end
 
-    def log_game_round
-      @round_actions<<
-      {
-          round: @round,
-          players_pos: @players.map{|p| p.pos}.to_a,
-          cells:  @cells.map { |cc| cc.dup}
-      }
+    def to_payam(finish = true)
+      @state = :NeedPay
+      if curr.isbot && !@auto_update  then  PlayerManager.pay(self, finish) end
     end
 
-def set_state(state) if !finished? then @state = state end end
-
-def begin? ; @state == :BeginStep end
-
-def in_trade? ; @state == :Trade end
-
-def in_auction? ; @state == :Auction end
-
-def finished? ; @state == :FinishGame end
-
-def to_begin; @state = :BeginStep end
-
-def lang_en? ; @lang == "en" end
-
-def get_text(key)
-
-    ind = lang_en? ? 0 : 1
-    mtext.has_key?(key) ? mtext[key][ind] : key
-end
-
-def to_random_cell
-    if curr.isbot
-      finish_step("")
-    else
-      @state = :RandomCell
-    end
-end
-
-def move_to_cell
-    if curr.isbot
-      PlayerStep.move_to_cell(self)
-    else
-      @state = :MoveToCell
+    def to_auction
+      @state = :Auction
+      AuctionManager.init_auction(self)
     end
 
-end
+    def to_cant_pay
+    end
 
-def to_pay(amount, finish = true)
-    @pay_amount = amount;
-    to_payam()
-end
-
-def to_payam(finish = true)
-    @state = :NeedPay
-    if curr.isbot && !@auto_update  then  PlayerManager.pay(self, finish) end
-end
-
-def to_auction
-    @state = :Auction
-    AuctionManager.init_auction(self)
-end
-
-def to_cant_pay
-end
-
-def to_can_buy(finish = true)
-    @state = :CanBuy
-    if curr.isbot && !@auto_update ;  PlayerManager.buy(self) end
-end
+    def to_can_buy(finish = true)
+      @state = :CanBuy
+      if curr.isbot && !@auto_update ;  PlayerManager.buy(self) end
+    end
 
 
-def transl_text(text)
-    arr = text.split(' ').map { |e| get_text(e) }.join(' ')
-end
+    def transl_text(text)
+      arr = text.split(' ').map { |e| get_text(e) }.join(' ')
+    end
 
-def log(text)
-    arr =text.split(' ')
-    arr[0] = get_text(arr[0])
-    ttext = arr.join(' ')
-    logs << "[#{@round}] #{ttext}"
-end
+    def log(text)
+      arr =text.split(' ')
+      arr[0] = get_text(arr[0])
+      ttext = arr.join(' ')
+      logs << "[#{@round}] #{ttext}"
+    end
 
-def logx(text)
-    xlogs<<"[#{@round}] #{text}"
-end
+    def logx(text)
+      xlogs<<"[#{@round}] #{text}"
+    end
 
-def logp(text)
-    ttext = transl_text(text)
-    ftext = "[#{curr.name}, #{curr.money}] #{ttext}"
-    logs << "[#{@round}] #{ftext}"
-end
+    def logp(text)
+      ttext = transl_text(text)
+      ftext = "[#{curr.name}, #{curr.money},#{curr.pos}] #{ttext}"
+      logs << "[#{@round}] #{ftext}"
+    end
 
-def logd(text)
-    puts "[debug] #{text}" if @debug
-end
+    def logd(text)
+      puts "[debug] #{text}" if @debug
+    end
 
 
 

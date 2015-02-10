@@ -130,7 +130,7 @@ end
 
 class Player
     attr_accessor :id, :name, :status, :isbot, :deleted, :money
-    attr_accessor :pos, :last_roll, :man_roll, :isdouble_roll, :police_key
+    attr_accessor :pos, :last_roll, :man_roll, :isdouble_roll, :police, :police_key
     attr_accessor :player_steps
     def initialize(id, name, isbot, money=15000)
       @player_steps = []

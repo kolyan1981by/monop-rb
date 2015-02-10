@@ -1,9 +1,9 @@
 class Cell
 
-    attr_accessor :id, :name, :type, :group
+    attr_accessor :id, :name, :type, :group, :info
     attr_accessor :owner, :owgrcount
     attr_accessor :cost
-    attr_accessor :arenda_info, :houses_count, :ismortgage
+    attr_accessor :rent_info, :houses_count, :ismortgage
     attr_accessor :random_group
     def initialize()
       @owgrcount = 0
@@ -25,8 +25,8 @@ class Cell
     end
 
     def need_pay(index)
-      if arenda_info == nil || index<0  then return 0 end
-      arenda_info.split(';')[index].to_i
+      if rent_info == nil || index<0  then return 0 end
+      rent_info.split(';')[index].to_i
     end
 
     def land?

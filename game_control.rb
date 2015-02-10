@@ -54,15 +54,17 @@ module  GameUI
 
           PlayerStep.make_step(g, cmd.sub('r','').to_i) if cmd.start_with?('r')
 
-          mortgage(g, cmd) if cmd.start_with?('m');
+          mortgage(g, cmd) if cmd.start_with?('m')
 
           unmortgage(g, cmd) if cmd.start_with?('um')
 
-      when :CanBuy;       if cmd != "a" then PlayerManager.buy(g) else g.to_auction end
+      when :CanBuy;       cmd != "a" ? PlayerManager.buy(g) : g.to_auction
       when :Auction;      AuctionManager.run_action_job(g,cmd)
-      when :Trade;        cmd == "y" ? TradeManager.complete_trade(g) : TradeManager.add_to_rejected_trades(g)
+      when :Trade;
+          cmd == "y" ? TradeManager.complete_trade(g) : TradeManager.add_to_rejected_trades(g)
+          PlayerStep.make_step(g) if g.curr.isbot
       when :CantPay, :NeedPay;      get_money(g, cmd); PlayerManager.pay(g)
-      when :RandomCell;   g.finish_step("random_finished")
+      when :RandomCell;   g.finish_step("_random_finished")
       when :MoveToCell;   PlayerStep.move_after_random(g)
       when :EndStep;      g.finish_round ; puts ""
       else
@@ -77,6 +79,7 @@ module  GameUI
           cells =cmd.split('-').map{ |cc| cc.to_i  }
           PlayerManager.mortgage_cells(g, g.curr, cells)
       end
+
       if cmd.start_with?('sh')
           cmd['sh']=''
           cells =cmd.split('-').map{ |cc| cc.to_i  }
@@ -84,11 +87,13 @@ module  GameUI
       end
 
     end
+
     def self.mortgage(g,cmd)
       cmd['m']='' if cmd.start_with?('m')
       cells =cmd.split('-').map{ |cc| cc.to_i  }
       PlayerManager.mortgage_cells(g, g.curr, cells)
     end
+
     def self.unmortgage(g,cmd)
       cmd['um']='' if cmd.start_with?('um')
       cells =cmd.split('-').map{ |cc| cc.to_i  }
