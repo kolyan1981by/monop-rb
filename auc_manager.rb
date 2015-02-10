@@ -14,8 +14,9 @@ module AuctionManager
     end
 
     def self.run_action_job(g, cmd)
+
       pl = g.curr_auction.curr_pl
-      return if pl.hum? && cmd == "auto"
+      return if pl.hum? && cmd == "auto" # auto : game update command
 
       #puts "next_auction_player #{pl.id} players #{g.curr_auction.auc_pls}"
 
@@ -24,6 +25,9 @@ module AuctionManager
       end
 
       check_if_finished(g)
+      if g.in_auction? && g.curr_auction.curr_pl.bot? && g.manual_update
+          run_action_job(g, cmd)
+      end
 
     end
 
@@ -31,7 +35,7 @@ module AuctionManager
       pid = pl.id
       cell = g.curr_auction.cell
       fact = BotActionsWhenBuy.factor_of_buy(g, pl, cell)
-      max_cost = cell.cost*fact
+      max_cost = cell.cost * fact
 
       max_money = g.player_assets(pid)
       needbid = pl.isbot ? (max_money >max_cost && g.curr_auction.curr_bid + 50 < max_cost) : cmd == "y" || cmd.empty?
@@ -39,9 +43,9 @@ module AuctionManager
       if needbid
           g.curr_auction.next_bid
           g.curr_auction.last_bidded_player = pl.id
-          g.log g.get_text("player_bid") % [pl.name , g.curr_auction.curr_bid]
+          g.log g.get_text("_player_bid") % [pl.name , g.curr_auction.curr_bid]
       else
-          g.log g.get_text("player_left_auction") % pl.name
+          g.log g.get_text("_player_left_auction") % pl.name
           g.curr_auction.auc_pls.delete(pid)
       end
       next_auction_player(g)
@@ -66,7 +70,7 @@ module AuctionManager
       end
 
       if auc.finished
-          result = count==0? "no_winners" : "winner_#{auc.auc_pls.first}"
+          result = count==0? g.get_text("no_winners") : g.get_text("winner") + g.curr_auction.curr_pl.name
           set_auc_winner(g) if count ==1
           g.finish_step("auc_finished [#{result}]")
       end

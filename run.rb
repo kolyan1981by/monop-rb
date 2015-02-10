@@ -13,7 +13,6 @@ def run_console_game
     g.players << Player.new(0, "kilk", 0 , 15000)
     g.players << Player.new(1, "vovk", 0 , 15000)
 
-    g.debug = false
     g.update_interval  = 0.1
 
     Thread.new { g.start }
@@ -46,14 +45,21 @@ def test
 
     g = Game.new(File.dirname(__FILE__))
     g.players << Player.new(0, "kilk", 0 , 15000)
-    g.players << Player.new(1, "vovk", 0, 15000)
+    g.players << Player.new(1, "vovk", 1, 15000)
 
-    g.debug = false
-    g.auto_update = false
+    g.manual_update = true
+    g.ui_show_ok_when_endround = false
+
     g.start
 
-    PlayerStep.make_step_roll(g,2,5)
+    PlayerStep.make_step_roll(g,2,3)
+    g.to_auction
+
+    AuctionManager.run_action_job(g,"n")
+
+    p "---log"
     g.logs.map { |line| p line  }
     #g.cells.map { |e| p e.info  }
 
 end
+#test

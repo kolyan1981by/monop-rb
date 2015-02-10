@@ -25,23 +25,27 @@ class FileUtil
           "auc_finished" => ["auction finished" , "аукцион закончился"],
           "_random_finished" => ["random finished" , ""],
           "_cell_mortgaged" => ["cell_mortgaged" , "земля заложена"],
-          "_mycell" => ["mycell" , "на своей клетке"],
+          "_mycell" => ["you are on own cell " , "вы на своей земле "],
           "_cell_nothing" => ["simple cell" , "пустая клетка"],
           "round_finished" => ["round finished" , "раунд закончился"],
           "player_left_game" => ["player %s left game" , "игрок %s покидает игру"],
-          "player_left_auction" => ["player %s left auction" , "игрок %s покидает аукцион"],
+          "_player_left_auction" => ["player %s left auction" , "игрок %s покидает аукцион"],
+          "_roll" => ["roll" , "кости"],
           "game_finished" => ["game finished" , "игра закончена"],
-          "player_bid" => ["player %s bid %d" , "игрок %s делает ставку %d"],
-          "_paid" => ["paid" , "заплатил"],
-          "_bought" => ["bought" , "купил"],
-          "_build" => ["build houses" , "построил дома"],
-          "_sold_houses" => ["sold houses" , "продал дома"],
-          "_mortgage" => ["mortgage" , "заложил участок"],
-          "_unmortgage" => ["unmortgage" , "выкупил участок"],
+          "_player_bid" => ["player %s bid %d" , "игрок %s делает ставку %d"],
+          "_paid" => ["paid" , "вы заплатили"],
+          "_bought" => ["bought" , "вы купили землю"],
+          "_build" => ["build houses" , "вы построили дома"],
+          "_sold_houses" => ["sold houses" , "вы продали дома"],
+          "_mortgage" => ["mortgage" , "вы заложили участок"],
+          "_unmortgage" => ["unmortgage" , "вы выкупили участок"],
           "_trade_completed" => ["trade completed between %s and %s, give %s get %s",
                               "обмен состоялся между %s и %s, дает %s получает %s"],
           "_go_jail_after_tripple" => ["_go_jail_after_tripple" , "пора в камеру дружок, слишком много махинаций"],
           "_go_jail_after_30" => ["_go_jail_after_30" , "полиция устроила облаву, вы попались с наркотой и вас посадили на три хода"],
+          "no_winners" => ["no winners" , "аукцион без победителя"],
+          "winner" => ["winner" , "победитель "],
+
       ]
 
     end
@@ -71,11 +75,11 @@ class FileUtil
       File.open(file_path, "r").drop(1).each do |line|
           next if /\S/ !~ line
 
-          v = line.split("\t").select{ |e| !e.strip.empty?  }
+          v = line.split("|").select{ |e| !e.strip.empty?  }
           cc =ChestCard.new
           cc.random_group =v[0].to_i
           cc.type =v[1].to_i
-          cc.text =v[2]
+          cc.text =v[2].strip
           cc.money =v[3].to_i if v.size >=4
           cc.pos =v[4].to_i if v.size >=5
           res<< cc

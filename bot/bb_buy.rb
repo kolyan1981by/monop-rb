@@ -25,6 +25,7 @@ class BotActionsWhenBuy
       gg = g.map.cells_by_group(cell.group)
       notMine = gg.select{|x| x.owner && x.owner!=pid }
       myCount = gg.select{|x| x.owner==pid }.count
+      #p "factor_of_buy pid:#{pid} myCount: #{myCount}"
 
       aCount =0
       aOwner = nil
@@ -150,7 +151,7 @@ class BotActionsWhenBuy
           7=>[1.1, 2, 2],
           8=>[1.1, 2],
           11=>[1.3, 1.5, 2, 2, 2],
-          33=>[1.1, 1.4],
+          33=>[1.1, 1.4, 0],
       ]
       factors[cg][myCount]
     end

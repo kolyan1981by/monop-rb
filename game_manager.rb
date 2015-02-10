@@ -28,7 +28,7 @@ module GameManager
     end
 
     def self.do_step(g)
-      if g.manual_mode
+      if g.manual_roll_mode
       else
           #g.logd "GameManager.do_step #{g.curr.id}"
           PlayerStep.make_step(g) if g.curr.isbot

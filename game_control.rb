@@ -64,9 +64,9 @@ module  GameUI
           cmd == "y" ? TradeManager.complete_trade(g) : TradeManager.add_to_rejected_trades(g)
           PlayerStep.make_step(g) if g.curr.isbot
       when :CantPay, :NeedPay;      get_money(g, cmd); PlayerManager.pay(g)
-      when :RandomCell;   g.finish_step("_random_finished")
+      when :RandomCell;   g.finish_step('')
       when :MoveToCell;   PlayerStep.move_after_random(g)
-      when :EndStep;      g.finish_round ; puts ""
+      when :EndStep;      g.finish_round
       else
           puts g.state
       end
@@ -99,12 +99,10 @@ module  GameUI
       cells =cmd.split('-').map{ |cc| cc.to_i  }
       PlayerManager.unmortgage_cells(g, g.curr, cells)
     end
-
-
     def self.info(g)
       res=[]
       #log "#{g.round}: #{g.curr.name}"
-
+      res<<"<table>"
       g.players.each do |p|
           cells = g.map.cells_by_user(p.id)
           active = cells.select{|c| c.active? && c.houses_count == 0}.map(&:id)
@@ -114,10 +112,11 @@ module  GameUI
           cells_info = "cells #{active} mortg #{mortg} with houses #{housed}"
 
           #res<< "#{p.name},#{p.money} #{cells_info}"
-          res<< "#{p.name} #{p.money}"
+          money_str = p.money.to_s.reverse.gsub(/...(?=.)/,'\& ').reverse
+          res<< "<tr><td> <b>#{p.name}</b> </td> <td><span style=\"color: red\">$ #{money_str}</span> </td></tr>"
       end
 
-      res
+      res<<"</table>"
     end
 
     def self.show_last_round(g)
@@ -126,4 +125,6 @@ module  GameUI
       logs = g.logs.select{ |l| l.start_with?("[#{r}]") }
       logs.each { |e| p e }
     end
+
+
 end

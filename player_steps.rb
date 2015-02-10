@@ -23,7 +23,7 @@ class PlayerStep
       prev_pos = g.curr.pos
       curr_pos = prev_pos+r1+r2
 
-      g.logp "roll #{r1}:#{r2} (#{prev_pos}->#{curr_pos%40})"
+      g.logp "#{g.get_text('_roll')} #{r1}:#{r2} (#{prev_pos}->#{curr_pos%40})"
 
       finished = step(g) #move to new pos
 
@@ -102,7 +102,7 @@ class PlayerStep
           end
 
       elsif cell.owner == p.id
-          g.finish_step("_mycell")
+          g.finish_step("_mycell #{cell.name}" )
       end
 
     end

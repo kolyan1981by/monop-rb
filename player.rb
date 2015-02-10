@@ -54,8 +54,9 @@ class PlayerManager
             end
 
             if needbuy
-                g.map.set_owner(p,cell)
-                g.finish_step("_bought #{cell.name} f=#{ff}")
+                g.map.set_owner(p, cell)
+                g.finish_step("_bought [#{cell.name}]")
+                g.logx("bought_#{cell.id} f=#{ff}")
             else
                 g.to_auction
             end
@@ -66,7 +67,8 @@ class PlayerManager
                 return
             else
                 g.map.set_owner(p,cell)
-                g.finish_step("_bought #{cell.name}")
+                g.finish_step("_bought [#{cell.name}]")
+                g.logx("bought_#{cell.id} f=#{ff}")
             end
           end
 

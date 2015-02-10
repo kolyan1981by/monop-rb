@@ -14,7 +14,9 @@ class Game
     attr_accessor :last_rcard, :community_chest, :chance_chest
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
     attr_accessor :curr_auction, :bot_arules
-    attr_accessor :debug, :manual_mode, :logs, :xlogs, :round_actions, :log_to_console, :log_game_rounds, :update_interval,:auto_update
+
+    attr_accessor :debug, :logs, :xlogs, :round_actions, :log_to_console, :log_game_rounds
+    attr_accessor :manual_roll_mode, :update_interval, :manual_update
     attr_accessor :lang, :mtext
     attr_accessor :ui_show_ok_when_endround
 
@@ -40,16 +42,9 @@ class Game
       @log_to_console = false
       @log_game_rounds = false
       @update_interval = 1
-      @auto_update = true
+      @manual_update = true
       @round_actions = []
       @ui_show_ok_when_endround = true
-
-    end
-
-    def add_players(count,money=15000)
-      @players << Player.new(0, "bot1", 1, money)
-      @players << Player.new(1, "bot2", 1, money) if count >1
-      @players << Player.new(2, "bot3", 1, money) if count >2
 
     end
 
@@ -66,13 +61,13 @@ class Game
           #info if begin?
           GameManager.update_game(self)
 
-      end if @auto_update
-
-
+      end if not @manual_update
     end
 
-    def player_trules(pid)
-      @bot_trules
+    def add_players(count,money=15000)
+      @players << Player.new(0, "bot1", 1, money)
+      @players << Player.new(1, "bot2", 1, money) if count >1
+      @players << Player.new(2, "bot3", 1, money) if count >2
 
     end
 
@@ -82,6 +77,10 @@ class Game
           @pcount ==0 ? "finish": @players[0]
 
     end
+
+    def curr_cell; cells[curr.pos] end
+
+
     def finish_step(act)
       fix_action(act) if !act.empty?
 
@@ -89,14 +88,14 @@ class Game
 
       @state = :EndStep
 
-      finish_round() if !@ui_show_ok_when_endround && !@auto_update
+      finish_round() if @manual_update &&  !@ui_show_ok_when_endround
     end
 
     def finish_round()
 
       return if state != :EndStep
 
-      GameManager.bot_actions_when_finish_step(self) if curr.isbot && !@auto_update
+      GameManager.bot_actions_when_finish_step(self) if curr.isbot && @manual_update
 
       log_game_round if @log_game_rounds
 
@@ -108,14 +107,34 @@ class Game
 
       to_begin
 
-      PlayerStep.make_step(self) if curr.isbot && !@auto_update
+      PlayerStep.make_step(self) if curr.isbot && @manual_update
 
     end
+
+    def finished? ; @state == :FinishGame end
+
+
+    def find_player(pid) @players.detect{|p| p.id == pid} end
+    def find_player_by(user_name) @players.detect{|p| p.name == user_name} end
 
     def fix_action(act)
       log act
       logx act
     end
+
+    def get_text(key)
+
+      ind = lang_en? ? 0 : 1
+      mtext.has_key?(key) ? mtext[key][ind] : key
+    end
+
+    def in_begin? ; @state == :BeginStep end
+
+    def in_trade? ; @state == :Trade end
+
+    def in_auction? ; @state == :Auction end
+
+    def lang_en? ; @lang == "en" end
 
     def log_game_round
       @round_actions<<
@@ -124,95 +143,6 @@ class Game
           players_pos: @players.map{|p| p.pos}.to_a,
           cells:  @cells.map { |cc| cc.dup}
       }
-    end
-    def find_player(pid) @players.detect{|p| p.id == pid} end
-
-    def find_player_by(user_name) @players.detect{|p| p.name == user_name} end
-
-
-
-    def player_assets(pid,inclMonop = true)
-      sum=0
-      cells.select{|c| c.owner==pid && c.active?}.each do |c|
-          if inclMonop
-            sum+=c.mortgage_amount
-            sum+=c.houses_count*c.house_cost_when_sell if c.houses_count>0
-          else
-            sum+=c.mortgage_amount if !c.monopoly?
-          end
-      end
-      sum + find_player(pid).money
-    end
-
-    def curr_cell; cells[curr.pos] end
-
-    def set_state(state)
-      @state = state if !finished?
-    end
-
-    def begin? ; @state == :BeginStep end
-
-    def in_trade? ; @state == :Trade end
-
-    def in_auction? ; @state == :Auction end
-
-    def state_endround? ; @state == :EndStep end
-
-    def finished? ; @state == :FinishGame end
-
-    def to_begin; @state = :BeginStep end
-
-    def lang_en? ; @lang == "en" end
-
-    def get_text(key)
-
-      ind = lang_en? ? 0 : 1
-      mtext.has_key?(key) ? mtext[key][ind] : key
-    end
-
-    def to_random_cell
-      if curr.isbot
-          finish_step("_random_finished")
-      else
-          @state = :RandomCell
-      end
-    end
-
-    def move_to_cell
-      if curr.isbot
-          PlayerStep.move_after_random(self)
-      else
-          @state = :MoveToCell
-      end
-
-    end
-
-    def to_pay(amount, finish = true)
-      @pay_amount = amount;
-      to_payam()
-    end
-
-    def to_payam(finish = true)
-      @state = :NeedPay
-      if curr.isbot && !@auto_update  then  PlayerManager.pay(self, finish) end
-    end
-
-    def to_auction
-      @state = :Auction
-      AuctionManager.init_auction(self)
-    end
-
-    def to_cant_pay
-    end
-
-    def to_can_buy(finish = true)
-      @state = :CanBuy
-      if curr.isbot && !@auto_update ;  PlayerManager.buy(self) end
-    end
-
-
-    def transl_text(text)
-      arr = text.split(' ').map { |e| get_text(e) }.join(' ')
     end
 
     def log(text)
@@ -234,6 +164,76 @@ class Game
 
     def logd(text)
       puts "[debug] #{text}" if @debug
+    end
+
+    def move_to_cell
+      if curr.isbot
+          PlayerStep.move_after_random(self)
+      else
+          @state = :MoveToCell
+      end
+    end
+
+    def player_assets(pid,inclMonop = true)
+      sum=0
+      cells.select{|c| c.owner==pid && c.active?}.each do |c|
+          if inclMonop
+            sum+=c.mortgage_amount
+            sum+=c.houses_count*c.house_cost_when_sell if c.houses_count>0
+          else
+            sum+=c.mortgage_amount if !c.monopoly?
+          end
+      end
+      sum + find_player(pid).money
+    end
+    def player_trules(pid)
+      @bot_trules
+
+    end
+
+    def set_state(state)
+      @state = state if !finished?
+    end
+
+    def state_endround? ; @state == :EndStep end
+
+    def to_begin; @state = :BeginStep end
+
+    def to_random_cell
+      if curr.isbot
+          finish_step("_random_finished")
+      else
+          @state = :RandomCell
+      end
+    end
+
+
+    def to_pay(amount, finish = true)
+      @pay_amount = amount;
+      to_payam()
+    end
+
+    def to_payam(finish = true)
+      @state = :NeedPay
+      if curr.isbot && @manual_update  then  PlayerManager.pay(self, finish) end
+    end
+
+    def to_auction
+      @state = :Auction
+      AuctionManager.init_auction(self)
+    end
+
+    def to_cant_pay
+    end
+
+    def to_can_buy(finish = true)
+      @state = :CanBuy
+      if curr.isbot && @manual_update ;  PlayerManager.buy(self) end
+    end
+
+
+    def transl_text(text)
+      arr = text.split(' ').map { |e| get_text(e) }.join(' ')
     end
 
 
