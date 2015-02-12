@@ -40,26 +40,39 @@ def run_console_game
 end
 
 #run_console_game
-def test
+def initg
     puts "---run console game.rb"
 
     g = Game.new(File.dirname(__FILE__))
-    g.players << Player.new(0, "kilk", 0 , 15000)
+    g.players << Player.new(0, "kilk", 1 , 15000)
     g.players << Player.new(1, "vovk", 1, 15000)
 
     g.manual_update = true
     g.ui_show_ok_when_endround = false
 
     g.start
+    g
+end
 
+def test_auc
+    g = initg
     PlayerStep.make_step_roll(g,2,3)
     g.to_auction
-
     AuctionManager.run_action_job(g,"n")
-
-    p "---log"
-    g.logs.map { |line| p line  }
-    #g.cells.map { |e| p e.info  }
-
 end
-#test
+
+def test_upd_map
+    g = initg
+
+    g.cells[6].owner=1
+    #g.cells[8].owner=1
+    g.cells[9].owner=0
+    #g.cells[11].owner=0
+    g.cells[13].owner=0
+    g.cells[14].owner=1
+
+    g.map.update_map
+    #p g.player_cell_groups
+    PlayerStep.make_step(g)
+end
+#test_upd_map

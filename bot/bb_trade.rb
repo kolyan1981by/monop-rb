@@ -31,46 +31,47 @@ class BotBrainTrade
             tr.reversed = true if !tr.nil?
           end
 
-          res << tr if !tr.nil?
+          if !tr.nil? ;  res<<tr end
+
       end
       res
     end
 
     def self.checkon_players_cells(g, trule, my)
 
-      pfrom = g.find_player(my)
+      my_pl = g.find_player(my)
+      groups = g.player_cell_groups
 
-      wantedCellsGroupedByUser = g.map.cells_by_group(trule.get_land)
-      .select{|x| !x.owner.nil? && x.owner != my}.group_by(&:owner)
+      groups.each_with_index do |anpl_groups, an_pid|
 
-      if !wantedCellsGroupedByUser.any? then return nil end
+          next if an_pid == my
+          next if anpl_groups[trule.get_land] != trule.get_count
 
-      wantedCellsGroupedByUser.each do |wantedByUser|
-          next if wantedByUser[1].length != trule.get_count
 
-          pto = g.find_player(wantedByUser[0])
+          an_p = g.find_player(an_pid)
 
           #i have
-          _myCells = g.map.cells_by_user_by_group(my, trule.get_land).length == trule.my_count
+          my_count = groups[my][trule.get_land] == trule.my_count
           #you have
-          _yourCells = g.map.cells_by_user_by_group(pto.id, trule.give_land).length == trule.your_count
+          your_count = groups[an_pid][trule.give_land] == trule.your_count
+
           #i give to you
           giveCells = g.map.cells_by_user_by_group(my, trule.give_land)
           #money factor
           money1 = g.player_assets(my, false)
-          money2 = g.player_assets(pto.id, false)
+          money2 = g.player_assets(an_pid, false)
 
-          p "money_factor NIL" if trule.money_factor.nil?
+          #p "money_factor NIL" if trule.money_factor.nil?
 
           mfac = (money1.to_f / money2) >= trule.money_factor
 
-          if giveCells.length == trule.give_count && _myCells && _yourCells && mfac
+          if giveCells.size == trule.give_count && my_count && your_count && mfac
             ntr = Trade.new
-            ntr.from = pfrom
-            ntr.give_cells = giveCells.map{|c| c.id}
+            ntr.from = my_pl
+            ntr.give_cells = giveCells.map(&:id)
             ntr.give_money = trule.give_money
-            ntr.to = pto
-            ntr.get_cells = wantedByUser[1].map(&:id)
+            ntr.to = an_p
+            ntr.get_cells = g.map.cells_by_user_by_group(an_pid,trule.get_land).map(&:id)
             ntr.get_money = trule.get_money
             ntr.id = trule.id
 

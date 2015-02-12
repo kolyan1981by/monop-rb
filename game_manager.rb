@@ -58,11 +58,15 @@ module GameManager
 
     def self.leave_game(g)
       p = g.curr
-      pid = p.id
 
       if g.players.count >= 2
           g.players.delete(p)
-          g.map.cells_by_user(pid).each{|c| c.owner = nil;c.houses_count=0}
+
+          #set owner <= nil
+          g.map.cells_by_user(p.id).each{|c| c.owner = nil; c.houses_count=0}
+
+          #zero cell groups count
+          g.player_cell_groups[p.id] = Array.new(11, 0)
           g.log g.get_text("player_left_game") % p.name
       end
 

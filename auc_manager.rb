@@ -26,6 +26,7 @@ module AuctionManager
 
       check_if_finished(g)
       if g.in_auction? && g.curr_auction.curr_pl.bot? && g.manual_update
+          sleep(g.update_interval)
           run_action_job(g, cmd)
       end
 
@@ -80,10 +81,9 @@ module AuctionManager
     def self.set_auc_winner(g)
       cell = g.curr_auction.cell
       auc = g.curr_auction
-      winner = auc.auc_pls.first
-      cell.owner = winner
-      g.find_player(winner).money -= auc.curr_bid
-      g.map.update_map
+      win_pid = auc.auc_pls.first
+      pl= g.find_player(win_pid)
+      g.map.set_owner(pl, cell, auc.curr_bid)
 
     end
 end

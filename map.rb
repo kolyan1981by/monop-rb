@@ -38,7 +38,9 @@ class Map
 
     end
 
-    def set_owner(p,cell)
+    def set_owner(p,cell,cost)
+      return if cell.owner == p.id
+
       cell.owner = p.id
       cell.ismortgage = false
       p.money -= cell.cost
@@ -51,7 +53,8 @@ class Map
       .map {|k,v| [k, v]}
 
       groups.each do |gr|
-          gr[1].each{|c| c.owgrcount = gr[1].length}
+          gr[1].each{|c| c.owgrcount = gr[1].size}
+          @g.player_cell_groups[ gr[0][1] ][ gr[0][0] ]=gr[1].size # set for player-group  cellscount
       end
     end
 

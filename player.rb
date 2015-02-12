@@ -1,5 +1,28 @@
 require_relative  'cell'
 
+class Player
+    attr_accessor :id, :name, :status, :isbot, :deleted, :money
+    attr_accessor :pos, :last_roll, :man_roll, :isdouble_roll, :police, :police_key
+    attr_accessor :player_steps
+    def initialize(id, name, isbot, money=15000)
+      @player_steps = []
+      @pos=0
+      @id = id
+      @name = name
+      @isbot = isbot == 1
+      @money = money
+      @police_key =0
+    end
+
+    def hum?
+      !@isbot
+    end
+    def bot?
+      @isbot
+    end
+end
+
+
 class PlayerManager
     attr_accessor  :g
     def initialize(g)
@@ -54,7 +77,7 @@ class PlayerManager
             end
 
             if needbuy
-                g.map.set_owner(p, cell)
+                g.map.set_owner(p, cell, cell.cost)
                 g.finish_step("_bought [#{cell.name}]")
                 g.logx("bought_#{cell.id} f=#{ff}")
             else
@@ -63,10 +86,11 @@ class PlayerManager
 
           else
             if p.money < cell.cost
-                g.state = :CantPay
+                g.state = :CanBuy
+                g.logp  g.get_text("not_enough_money")
                 return
             else
-                g.map.set_owner(p,cell)
+                g.map.set_owner(p, cell, cell.cost)
                 g.finish_step("_bought [#{cell.name}]")
                 g.logx("bought_#{cell.id} f=#{ff}")
             end
@@ -127,27 +151,5 @@ class PlayerManager
           end
       end
       text
-    end
-end
-
-class Player
-    attr_accessor :id, :name, :status, :isbot, :deleted, :money
-    attr_accessor :pos, :last_roll, :man_roll, :isdouble_roll, :police, :police_key
-    attr_accessor :player_steps
-    def initialize(id, name, isbot, money=15000)
-      @player_steps = []
-      @pos=0
-      @id = id
-      @name = name
-      @isbot = isbot == 1
-      @money = money
-      @police_key =0
-    end
-
-    def hum?
-      !@isbot
-    end
-    def bot?
-      @isbot
     end
 end

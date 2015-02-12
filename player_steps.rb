@@ -83,7 +83,7 @@ class PlayerStep
           p.police = 1
           g.finish_step("_go_jail_after_30")
       else
-          g.finish_step("_cell_nothing #{p.pos}")
+          g.finish_step("")#g.finish_step("_cell_nothing #{p.pos}")
       end
 
     end

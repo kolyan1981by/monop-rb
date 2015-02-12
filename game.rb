@@ -9,7 +9,7 @@ require 'securerandom'
 class Game
 
     attr_accessor :id, :state, :round, :last_roll
-    attr_accessor  :map, :player, :cells, :players, :pcount, :selected, :winner
+    attr_accessor  :map, :player, :cells, :player_cell_groups, :players, :pcount, :selected, :winner
     attr_accessor :pay_amount, :pay_to_user
     attr_accessor :last_rcard, :community_chest, :chance_chest
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
@@ -33,6 +33,7 @@ class Game
 
       @map = Map.new(self)
       @player = PlayerManager.new(self)
+      @player_cell_groups = []
 
       @debug = false
       @rejected_trades = []
@@ -51,6 +52,8 @@ class Game
     def start
       @selected = 0
       @pcount = players.count
+      @pcount.times {|e| @player_cell_groups <<Array.new(11, 0)}
+
       to_begin
       @round = 1
 
@@ -87,8 +90,9 @@ class Game
       #return if state == :EndStep
 
       @state = :EndStep
-
-      finish_round() if @manual_update &&  !@ui_show_ok_when_endround
+      if @manual_update &&  !@ui_show_ok_when_endround
+          finish_round()
+      end
     end
 
     def finish_round()
@@ -106,8 +110,10 @@ class Game
       @selected = @selected < @pcount ?  (@selected+1) % @pcount : 0
 
       to_begin
-
-      PlayerStep.make_step(self) if curr.isbot && @manual_update
+      if curr.isbot && @manual_update
+          #sleep(@update_interval)
+          PlayerStep.make_step(self)
+      end
 
     end
 
@@ -201,7 +207,7 @@ class Game
 
     def to_random_cell
       if curr.isbot
-          finish_step("_random_finished")
+          finish_step("") #_random_finished
       else
           @state = :RandomCell
       end
@@ -224,6 +230,7 @@ class Game
     end
 
     def to_cant_pay
+      GameManager.check_payment if curr.isbot && @manual_update
     end
 
     def to_can_buy(finish = true)

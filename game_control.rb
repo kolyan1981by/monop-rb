@@ -50,7 +50,7 @@ module  GameUI
       case g.state
       when :BeginStep;
           help_info if cmd=='h'
-          PlayerStep.make_step(g) if cmd.empty?
+          PlayerStep.make_step(g) if cmd.empty? || cmd =='r0'
 
           PlayerStep.make_step(g, cmd.sub('r','').to_i) if cmd.start_with?('r')
 
@@ -66,7 +66,7 @@ module  GameUI
       when :CantPay, :NeedPay;      get_money(g, cmd); PlayerManager.pay(g)
       when :RandomCell;   g.finish_step('')
       when :MoveToCell;   PlayerStep.move_after_random(g)
-      when :EndStep;      g.finish_round
+      when :EndStep;       g.finish_round #Thread.new{ g.finish_round }
       else
           puts g.state
       end
