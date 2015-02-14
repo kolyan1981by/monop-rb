@@ -9,7 +9,7 @@ require 'securerandom'
 class Game
 
     attr_accessor :id, :state, :round, :last_roll
-    attr_accessor  :map, :player, :cells, :player_cell_groups, :players, :pcount, :selected, :winner
+    attr_accessor  :map, :player, :cells, :player_cell_groups, :players, :selected, :winner
     attr_accessor :pay_amount, :pay_to_user
     attr_accessor :last_rcard, :community_chest, :chance_chest
     attr_accessor :curr_trade, :bot_trules, :rejected_trades,:completed_trades
@@ -17,7 +17,7 @@ class Game
 
     attr_accessor :debug, :logs, :xlogs, :round_actions, :log_to_console, :log_game_rounds
     attr_accessor :manual_roll_mode, :update_interval, :manual_update
-    attr_accessor :lang, :mtext
+    attr_accessor :lang, :mtext, :round_message
     attr_accessor :ui_show_ok_when_endround
 
     def initialize(root_path="", lang="ru")
@@ -51,8 +51,7 @@ class Game
 
     def start
       @selected = 0
-      @pcount = players.count
-      @pcount.times {|e| @player_cell_groups <<Array.new(11, 0)}
+      @players.size.times {|e| @player_cell_groups <<Array.new(11, 0)}
 
       to_begin
       @round = 1
@@ -66,8 +65,14 @@ class Game
 
       end if not @manual_update
     end
+    def check_game
+      @players.each do |pl|
+          gr_counts = @player_cell_groups[pl.id]
+          @player_cell_groups[pl.id]= Array.new(11, 0) if gr_counts.nil?
+      end
+    end
 
-    def add_players(count,money=15000)
+    def add_players(count, money=15000)
       @players << Player.new(0, "bot1", 1, money)
       @players << Player.new(1, "bot2", 1, money) if count >1
       @players << Player.new(2, "bot3", 1, money) if count >2
@@ -75,10 +80,7 @@ class Game
     end
 
     def curr
-      @selected < @pcount ? @players[selected]
-      :
-          @pcount ==0 ? "finish": @players[0]
-
+      @selected < @players.size ? @players[selected] : @players[0]
     end
 
     def curr_cell; cells[curr.pos] end
@@ -90,7 +92,7 @@ class Game
       #return if state == :EndStep
 
       @state = :EndStep
-      if @manual_update &&  !@ui_show_ok_when_endround
+      if @manual_update &&  (curr.bot? || !@ui_show_ok_when_endround)
           finish_round()
       end
     end
@@ -107,7 +109,7 @@ class Game
 
       @round+=1
 
-      @selected = @selected < @pcount ?  (@selected+1) % @pcount : 0
+      @selected = @selected < @players.size ?  (@selected+1) % @players.size : 0
 
       to_begin
       if curr.isbot && @manual_update
@@ -227,6 +229,7 @@ class Game
     def to_auction
       @state = :Auction
       AuctionManager.init_auction(self)
+      AuctionManager.run_action_job(self, '') if curr.isbot && @manual_update
     end
 
     def to_cant_pay

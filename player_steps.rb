@@ -21,9 +21,12 @@ class PlayerStep
       g.last_roll = [r1,r2]
 
       prev_pos = g.curr.pos
-      curr_pos = prev_pos+r1+r2
+      curr_pos = (prev_pos+r1+r2)%40
 
-      g.logp "#{g.get_text('_roll')} #{r1}:#{r2} (#{prev_pos}->#{curr_pos%40})"
+      #g.log "#{g.get_text('_roll')} #{r1}:#{r2} (#{prev_pos}->#{curr_pos})"
+      g.log "#{g.curr.name} #{g.get_text('_roll')} #{r1}:#{r2}, и попадает на  #{g.cells[curr_pos].name}"
+      img = "<img src='/Content/images/Game/r%s.png' >"
+      g.round_message = "#{g.curr.name} #{g.get_text('_roll')} " + ((img+img) % g.last_roll) +" и попал на #{g.cells[curr_pos].name}"
 
       finished = step(g) #move to new pos
 
@@ -112,6 +115,7 @@ class PlayerStep
       g.map.take_random_card()
       c = g.last_rcard
       g.log "#{c.text}"
+      g.round_message += "<br/>потянул карточку *** #{c.text} ***"
 
       case c.random_group
       when 1

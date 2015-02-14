@@ -37,6 +37,7 @@ class PlayerManager
       ok = p.isbot ? BotBrainCells.mortgage_sell(g,p,amount) : p.money >= amount
       if ok
           p.money-=amount
+          g.round_message +="<br/>заплатил $#{amount}"
 
           if g.pay_to_user
             g.find_player(g.pay_to_user).money += amount
@@ -44,6 +45,7 @@ class PlayerManager
           end
           if finish
             g.finish_step("_paid " + amount.to_s)
+
           else
             g.state = :BeginStep
           end
@@ -78,8 +80,9 @@ class PlayerManager
 
             if needbuy
                 g.map.set_owner(p, cell, cell.cost)
-                g.finish_step("_bought [#{cell.name}]")
                 g.logx("bought_#{cell.id} f=#{ff}")
+                g.round_message +="<br/>купил [#{cell.name}]"
+                g.finish_step("_bought [#{cell.name}]")
             else
                 g.to_auction
             end

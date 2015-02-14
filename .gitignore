@@ -13,5 +13,6 @@
 # Ignore all logfiles and tempfiles.
 /app_data/generated/*
 generated/*
+data/*
 
 *.yml

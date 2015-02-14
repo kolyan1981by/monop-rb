@@ -30,7 +30,7 @@ class FileUtil
           "round_finished" => ["round finished" , "раунд закончился"],
           "player_left_game" => ["player %s left game" , "игрок %s покидает игру"],
           "_player_left_auction" => ["player %s left auction" , "игрок %s покидает аукцион"],
-          "_roll" => ["roll" , "кости"],
+          "_roll" => ["roll" , "бросил кости"],
           "game_finished" => ["game finished" , "игра закончена"],
           "_player_bid" => ["player %s bid %d" , "игрок %s делает ставку %d"],
           "_paid" => ["paid" , "вы заплатили"],

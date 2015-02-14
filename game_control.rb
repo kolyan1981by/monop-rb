@@ -101,17 +101,8 @@ module  GameUI
     end
     def self.info(g)
       res=[]
-      #log "#{g.round}: #{g.curr.name}"
       res<<"<table>"
       g.players.each do |p|
-          cells = g.map.cells_by_user(p.id)
-          active = cells.select{|c| c.active? && c.houses_count == 0}.map(&:id)
-          mortg = cells.select{|c| c.mortg?}.map(&:id)
-          housed = cells.select{|c| c.houses_count > 0}.map(&:id)
-
-          cells_info = "cells #{active} mortg #{mortg} with houses #{housed}"
-
-          #res<< "#{p.name},#{p.money} #{cells_info}"
           money_str = p.money.to_s.reverse.gsub(/...(?=.)/,'\& ').reverse
           res<< "<tr><td> <b>#{p.name}</b> </td> <td><span style=\"color: red\">$ #{money_str}</span> </td></tr>"
       end
@@ -119,6 +110,20 @@ module  GameUI
       res<<"</table>"
     end
 
+    def self.player_houses_info(g)
+      res=[]
+      res<<"<table>"
+      g.players.each do |p|
+          cells = g.map.cells_by_user(p.id)
+          active = cells.select{|c| c.active? && c.houses_count == 0}.map(&:id)
+          mortg = cells.select{|c| c.mortg?}.map(&:id)
+          housed = cells.select{|c| c.houses_count > 0}.map(&:id)
+          cells_info = "cells #{active} mortg #{mortg} with houses #{housed}"
+          res<< "#{p.name},#{p.money} #{cells_info}"
+      end
+
+      res<<"</table>"
+    end
     def self.show_last_round(g)
       r = g.round
       #logs = g.logs.select{ |l| l.start_with?("[#{r}]") or l.start_with?("[#{r-1}]") }

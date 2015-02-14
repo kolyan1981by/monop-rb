@@ -75,4 +75,5 @@ def test_upd_map
     #p g.player_cell_groups
     PlayerStep.make_step(g)
 end
+
 #test_upd_map
