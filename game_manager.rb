@@ -49,7 +49,7 @@ module GameManager
 
     def self.bot_actions_when_finish_step(g)
 
-      BotBrainCells.unmortgage_cells(g);
+      BBCells.unmortgage_cells(g);
 
       sum = 0.8*g.player_assets(g.curr.id, false)
 

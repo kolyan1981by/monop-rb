@@ -38,6 +38,11 @@ class Map
 
     end
 
+    def monop_groups_by_user(pid)
+      cells_by_user_by_type(pid, 1).select{|c| c.monopoly?}.group_by(&:group)
+      .select{|k,v|  v.all?{|c| c.active?} }
+    end
+    
     def set_owner(p,cell,cost)
       return if cell.owner == p.id
 

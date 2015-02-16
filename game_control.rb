@@ -91,13 +91,13 @@ module  GameUI
     def self.mortgage(g,cmd)
       cmd['m']='' if cmd.start_with?('m')
       cells =cmd.split('-').map{ |cc| cc.to_i  }
-      PlayerManager.mortgage_cells(g, g.curr, cells)
+      PlayerManager.go_mortgage_cells(g, g.curr, cells)
     end
 
     def self.unmortgage(g,cmd)
       cmd['um']='' if cmd.start_with?('um')
       cells =cmd.split('-').map{ |cc| cc.to_i  }
-      PlayerManager.unmortgage_cells(g, g.curr, cells)
+      PlayerManager.go_unmortgage_cells(g, g.curr, cells)
     end
     def self.info(g)
       res=[]
@@ -112,7 +112,6 @@ module  GameUI
 
     def self.player_houses_info(g)
       res=[]
-      res<<"<table>"
       g.players.each do |p|
           cells = g.map.cells_by_user(p.id)
           active = cells.select{|c| c.active? && c.houses_count == 0}.map(&:id)
@@ -122,7 +121,7 @@ module  GameUI
           res<< "#{p.name},#{p.money} #{cells_info}"
       end
 
-      res<<"</table>"
+      res
     end
     def self.show_last_round(g)
       r = g.round
