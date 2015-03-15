@@ -2,8 +2,8 @@ require_relative  'cell'
 
 class Player
     attr_accessor :id, :name, :status, :isbot, :deleted, :money
-    attr_accessor :pos, :last_roll, :man_roll, :isdouble_roll, :police, :police_key
-    attr_accessor :player_steps
+    attr_accessor :pos, :last_roll, :manual_roll, :police, :police_key
+    attr_accessor :player_steps, :timer
     def initialize(id, name, isbot, money=15000)
         @player_steps = []
         @pos=0
@@ -11,7 +11,9 @@ class Player
         @name = name
         @isbot = isbot == 1
         @money = money
+        @police =0
         @police_key =0
+        @manual_roll =0
     end
 
     def hum?
@@ -19,6 +21,9 @@ class Player
     end
     def bot?
         @isbot
+    end
+    def update_timer
+        @timer = Time.now
     end
 end
 
@@ -33,19 +38,25 @@ class PlayerManager
 
     def self.pay(g, finish = true)
         p = g.curr
+        p.update_timer
         amount = g.pay_amount
         ok = p.isbot ? BBCells.mortgage_sell(g,p,amount) : p.money >= amount
         if ok
             p.money-=amount
-            g.round_message +="<br/>заплатил $#{amount}"
+            if p.police>0
+                p.police=0
+                g.log "paid_500_and_go_from_jail"
+                PlayerStep.change_pos_and_process_position(g)
+                return
+            end
 
             if g.pay_to_user
                 g.find_player(g.pay_to_user).money += amount
                 g.pay_to_user = nil
             end
+
             if finish
                 g.finish_step("_paid " + amount.to_s)
-
             else
                 g.state = :BeginStep
             end
@@ -53,11 +64,10 @@ class PlayerManager
             g.pay_amount = 0
             return true
         else
-            g.logp  g.get_text("not_enough_money")
+            g.log "not_enough_money"
             g.to_cant_pay
         end
 
-        g.logd "pl_act.end.pay"
         return false
     end
 
@@ -65,6 +75,8 @@ class PlayerManager
         return false if g.state != :CanBuy
 
         p = g.curr
+        p.update_timer
+
         cell = g.curr_cell
 
         if cell.land? && cell.owner.nil?
@@ -80,7 +92,8 @@ class PlayerManager
 
                 if needbuy
                     g.map.set_owner(p, cell, cell.cost)
-                    g.round_message +="<br/>купил [#{cell.name}]"
+                    g.round_message += g.l "<br/>вы купили [#{cell.name}] за $#{cell.cost}","<br/>you purchased [#{cell.name}] for $#{cell.cost}"
+
                     g.finish_step("_bought [#{cell.name}]")
                 else
                     g.to_auction
@@ -99,7 +112,18 @@ class PlayerManager
             end
 
         end
-        g.logd "pl_act.end.buy"
+    end
+
+    def self.go_auc_bid(g, pl, cmd)
+        pl.update_timer
+
+        cell = g.curr_auction.cell
+        fact = BotActionsWhenBuy.factor_of_buy(g, pl, cell)
+        max_cost = cell.cost * fact
+
+        max_money = g.player_assets(pl.id)
+        needbid = pl.isbot ? (max_money >max_cost && g.curr_auction.curr_bid + 50 < max_cost) : cmd == "y" || cmd.empty?
+
     end
 
     def self.go_mortgage_cells(g, p, cells)
