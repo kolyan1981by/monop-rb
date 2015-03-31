@@ -30,7 +30,7 @@ class Cell
   end
 
   def land?
-    [1, 2, 3].include? type
+    type ==1 || type ==2 || type ==3
   end
 
   def active?

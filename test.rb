@@ -7,7 +7,7 @@ def init_game
   g = Game.new(File.dirname(__FILE__))
   g.log_to_console = true
 
-  g.add_player("vitek",1)
+  g.add_player("human",1)
   g.add_player("fedor(b)",1)
 
   g.start
@@ -34,17 +34,19 @@ end
 
 def  test_random
   g = init_game
-  g.curr.pos = 2
+  g.ui_show_ok_when_endround = false
+  g.curr.pos = 17
   pl = g.curr
   p "before: #{pl.money}"
 
   PlayerStep.process_position(g)
   #random = g.map.take_random_card()
   p g.logs
-  p "after: #{pl.money}"
+  p "#{g.state} after: #{pl.money}"
+
 
 end
-test_random
+#test_random
 
 
 def  test_police_exit
@@ -62,7 +64,7 @@ def  test_police_exit
     c = g.cells[id]
     c.owner = 1
   end
-  mypid =0
+  #mypid =0
   g.map.update_map
 
   g.check_roll_and_make_step

@@ -94,7 +94,8 @@ class Game
     fix_action(act) if !act.empty?
 
     @state = :EndStep
-    if !curr.isbot && !@ui_show_ok_when_endround
+
+    if curr.hum? && !@ui_show_ok_when_endround
       finish_round
     end
   end
@@ -107,7 +108,7 @@ class Game
 
     log_game_round if @log_game_rounds
 
-    log "round_finished"
+    log "_round_finished"
 
     if is_manual_roll_mode
       players.each{|pl| pl.manual_roll =0}
@@ -123,7 +124,7 @@ class Game
     to_begin
     curr.update_timer
 
-    if   curr.isbot #&& !@ui_show_ok_when_endround
+    if  curr.isbot #&& !@ui_show_ok_when_endround
       #sleep(@update_interval)
       check_roll_and_make_step
     end
@@ -153,6 +154,8 @@ class Game
   def in_trade? ; @state == :Trade end
 
   def in_auction? ; @state == :Auction end
+
+  def in_end_round? ; @state == :EndStep end
 
   def lang_en? ; @lang == "en" end
 

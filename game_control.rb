@@ -1,8 +1,4 @@
-require_relative "utils"
 require_relative "game"
-require_relative "game_manager"
-require_relative "player"
-require_relative "player_steps"
 
 module  GameUI
   def self.help_info
@@ -13,22 +9,22 @@ module  GameUI
 
   end
 
-  def self.show_game_state(g)
+
+  def self.show_game_state_en(g, uname)
     case g.state
-    when :BeginStep;     "begin step"
-    when :CanBuy;        "you can buy cell #{g.curr_cell.id} or auction [your money #{g.curr.money}], enter b/a:" if g.curr.hum?
+    when :BeginStep;     "start round,  #{ g.is_manual_roll_mode ? 'choose one number [1..6]' : 'write [game roll]'}"
+    when :CanBuy;        "you can buy [#{g.curr_cell.name}] or auction, write [game b] or [game a]" if g.curr.hum?
     when :Auction;       "do you want bid? [y n]" #if g.curr_auction.curr_pl.hum?
-    when :Trade;         "player #{g.curr_trade.from.id} wants trade  give=#{g.curr_trade.give_cells} get#{g.curr_trade.get_cells}, enter y/n"
+    when :Trade;         "player #{g.curr_trade.from.id} wants trade, give #{g.curr_trade.give_cells} wants #{g.curr_trade.get_cells}, write [game y] or [game n]"
     when :CantPay;       "you need mortgage cells to find money"
-    when :NeedPay;       "yoy need pay, press enter" if g.curr.hum?
-    when :RandomCell;    "#{g.last_rcard.text}, press enter" if g.curr.hum?
-    when :MoveToCell;    "move to cell" if g.curr.hum?
-    when :EndStep;
+    when :NeedPay;       "yoy need pay, write [game pay]" if g.curr.hum?
+    when :RandomCell;    # "#{g.logs.last}, write [game go]" if g.curr.hum?
+    when :MoveToCell;    # "#{g.logs.last}" if g.curr.hum?
+    when :EndStep;       "#{g.round_message.gsub('<br/>',', ')}"
     else
       g.state
     end
   end
-
   def self.show_game_state_ru(g, uname)
     case g.state
     when :BeginStep;     "начало хода,  #{ g.is_manual_roll_mode ? 'выберите кубик от 1 до 6 для соперника' : 'нажмите кнопку'}"
@@ -48,6 +44,8 @@ module  GameUI
     #puts "#{g.state} process_command: #{cmd}"
     #GameManager.update_game(g) if g.curr.isbot
 
+    cmd.sub!('game ','') if !cmd.nil? && cmd.start_with?('game ')
+
     case g.state
     when :BeginStep;
       help_info if cmd=='h'
@@ -60,11 +58,11 @@ module  GameUI
         g.pay_amount = 500
         PlayerManager.pay(g, false)
         g.curr.police=0
-        g.log g.get_text("paid_500_and_go_from_jail")
+        g.log g.l "вы заплатили $500 и выходите из тюрьмы", "you paid $500 and can roll"
         return
       end
 
-      r0 = cmd.empty? || cmd =='r0' ? 0 : cmd.sub('r','').to_i
+      r0 = cmd.empty? ||  cmd =='r0' ? 0 : cmd.sub('r','').to_i
 
       if g.is_manual_roll_mode
         g.find_player_by(uname).manual_roll = r0
@@ -140,7 +138,7 @@ module  GameUI
     r = g.round
     #logs = g.logs.select{ |l| l.start_with?("[#{r}]") or l.start_with?("[#{r-1}]") }
     logs = g.logs.select{ |l| l.start_with?("[#{r}]") }
-    logs.each { |e| p e }
+    #logs.each { |e| p e }
   end
 
   def self.init_trade(g, cmd, uname)
